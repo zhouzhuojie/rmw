@@ -250,63 +250,116 @@ function bump(map, cp, ch) {
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { stdin as stdinStream } from "process";
 var VERSION = "0.1.0";
+var EXIT_OK = 0;
+var EXIT_FOUND = 1;
+var EXIT_ERROR = 2;
 function usage() {
-  return `rmw (rm watermarks) \u2014 detect & remove invisible Unicode from text
+  return `rmw (rm watermarks) \u2014 detect & remove invisible Unicode
 
 Usage:
-  rmw detect [file] [--json]
-  rmw clean  [file] [-o out] [--json] [--no-space-normalize]
-  rmw --help
-  rmw --version
+  rmw detect [file] [options]
+  rmw clean  [file] [options]
+  rmw help
+  rmw version
 
-If no file is given, text is read from stdin.
+Options:
+  -o, --output <file>       clean: write result to file (default: stdout)
+  --json                    machine-readable output
+  --no-space-normalize      clean: keep exotic Unicode spaces
+  --fail                    detect: exit 1 when marks are found (CI)
+  -q, --quiet               less output (status only / none for clean\u2192stdout)
+  -v, --verbose             extra notes (scope of what rmw can detect)
+  -h, --help                show help
+  -V, --version             show version
+
+Input:
+  Pass a file path, or pipe text on stdin.
+
 Examples:
-  rmw detect notes.md
-  rmw clean notes.md -o clean.md
+  npx --yes github:zhouzhuojie/rmw detect notes.md
+  npx --yes github:zhouzhuojie/rmw clean notes.md -o clean.md
   cat notes.md | rmw clean > clean.md
-  echo "a\\u200Bb" | rmw detect --json
+  rmw detect notes.md --fail          # CI: non-zero if dirty
+  rmw detect notes.md --json
+
+Exit codes:
+  0  success (detect: clean \xB7 clean: done)
+  1  detect found invisible/format Unicode (--fail or always; see below)
+  2  error (bad args, missing file, \u2026)
+
+By default detect exits 0 even when marks are found (inspection mode).
+Pass --fail to exit 1 when anything is found (gate mode).
+
+Scope:
+  rmw only handles invisible / format Unicode (ZW*, bidi, tags, odd spaces\u2026).
+  It does not detect statistical AI text watermarks.
 `;
 }
 function parseArgs(argv) {
   const args = {
     command: "help",
     json: false,
-    normalizeSpaces: true
+    normalizeSpaces: true,
+    fail: false,
+    quiet: false,
+    verbose: false
   };
   const rest = [...argv];
   if (rest.length === 0) return args;
   const head = rest.shift();
-  if (head === "-h" || head === "--help") {
+  if (head === "-h" || head === "--help" || head === "help") {
     args.command = "help";
     return args;
   }
-  if (head === "-v" || head === "--version") {
+  if (head === "-V" || head === "--version" || head === "version") {
     args.command = "version";
     return args;
   }
   if (head !== "detect" && head !== "clean") {
-    throw new Error(`Unknown command: ${head}
-
-${usage()}`);
+    throw new Error(`Unknown command '${head}'. Try: rmw detect | rmw clean | rmw help`);
   }
   args.command = head;
   while (rest.length > 0) {
     const token = rest.shift();
-    if (token === "--json") {
-      args.json = true;
-    } else if (token === "--no-space-normalize") {
-      args.normalizeSpaces = false;
-    } else if (token === "-o" || token === "--output") {
-      const value = rest.shift();
-      if (!value) throw new Error("Missing value for -o/--output");
-      args.output = value;
-    } else if (token === "-h" || token === "--help") {
-      args.command = "help";
-    } else if (token.startsWith("-")) {
-      throw new Error(`Unknown flag: ${token}`);
-    } else {
-      if (args.file) throw new Error("Only one input file is allowed");
-      args.file = token;
+    switch (token) {
+      case "--json":
+        args.json = true;
+        break;
+      case "--no-space-normalize":
+        args.normalizeSpaces = false;
+        break;
+      case "--fail":
+        args.fail = true;
+        break;
+      case "-q":
+      case "--quiet":
+        args.quiet = true;
+        break;
+      case "-v":
+      case "--verbose":
+        args.verbose = true;
+        break;
+      case "-o":
+      case "--output": {
+        const value = rest.shift();
+        if (!value) throw new Error("Missing value for -o/--output");
+        args.output = value;
+        break;
+      }
+      case "-h":
+      case "--help":
+        args.command = "help";
+        break;
+      case "-V":
+      case "--version":
+        args.command = "version";
+        break;
+      default:
+        if (token.startsWith("-")) {
+          throw new Error(`Unknown flag '${token}'. Try: rmw help`);
+        }
+        if (args.file) throw new Error("Only one input file is allowed");
+        args.file = token;
     }
   }
   return args;
@@ -317,7 +370,7 @@ async function readInput(file) {
     return readFileSync(file, "utf8");
   }
   if (stdinStream.isTTY) {
-    throw new Error("No input file and stdin is a TTY. Pass a file or pipe text.");
+    throw new Error("No input. Pass a file or pipe text on stdin.\nExample: rmw detect notes.md");
   }
   const chunks = [];
   for await (const chunk of stdinStream) {
@@ -326,51 +379,45 @@ async function readInput(file) {
   return Buffer.concat(chunks).toString("utf8");
 }
 function formatFindings(findings) {
-  if (findings.length === 0) return "  (none)";
   return findings.map(
-    (f) => `  ${f.codepoint.padEnd(10)} ${String(f.count).padStart(4)}  ${f.kind.padEnd(11)} ${f.name}`
+    (f) => `  ${f.codepoint.padEnd(10)} \xD7${String(f.count).padEnd(4)} ${f.kind.padEnd(11)} ${f.name}`
   ).join("\n");
 }
-async function main() {
-  let args;
-  try {
-    args = parseArgs(process.argv.slice(2));
-  } catch (err) {
-    console.error(err instanceof Error ? err.message : err);
-    return 1;
-  }
-  if (args.command === "help") {
-    console.log(usage());
-    return 0;
-  }
-  if (args.command === "version") {
-    console.log(VERSION);
-    return 0;
-  }
-  let text;
-  try {
-    text = await readInput(args.file);
-  } catch (err) {
-    console.error(err instanceof Error ? err.message : err);
-    return 1;
-  }
-  if (args.command === "detect") {
-    const result2 = detect(text);
-    if (args.json) {
-      console.log(JSON.stringify(result2, null, 2));
+function scopeNote() {
+  return "note: invisible/format Unicode only \u2014 not statistical AI watermarks";
+}
+function runDetect(text, args) {
+  const result = detect(text);
+  if (args.json) {
+    console.log(
+      JSON.stringify(
+        {
+          command: "detect",
+          clean: !result.hasSuspiciousChars,
+          total: result.totalSuspicious,
+          findings: result.findings
+        },
+        null,
+        2
+      )
+    );
+  } else if (!args.quiet) {
+    if (!result.hasSuspiciousChars) {
+      console.log("detect: clean \u2014 no invisible Unicode found");
     } else {
       console.log(
-        result2.hasSuspiciousChars ? `Found ${result2.totalSuspicious} suspicious character(s):` : "No suspicious Unicode characters found."
+        `detect: found ${result.totalSuspicious} invisible character(s) (${result.findings.length} codepoint(s))`
       );
-      if (result2.findings.length > 0) {
-        console.log(formatFindings(result2.findings));
-      }
-      console.log(
-        "\nNote: this only scans invisible/format Unicode. It cannot detect Anthropic's statistical text watermark."
-      );
+      console.log(formatFindings(result.findings));
     }
-    return result2.hasSuspiciousChars ? 0 : 0;
+    if (args.verbose) {
+      console.error(scopeNote());
+    }
   }
+  if (result.hasSuspiciousChars && args.fail) return EXIT_FOUND;
+  return EXIT_OK;
+}
+function runClean(text, args) {
   const result = clean(text, { normalizeSpaces: args.normalizeSpaces });
   if (args.output) {
     writeFileSync(args.output, result.text, "utf8");
@@ -384,26 +431,62 @@ async function main() {
     console.error(
       JSON.stringify(
         {
-          removedCount: result.removedCount,
+          command: "clean",
+          removed: result.removedCount,
           normalizedSpaces: result.normalizedSpaces,
-          removed: result.removed,
-          output: args.output ?? "(stdout)"
+          findings: result.removed,
+          output: args.output ?? "stdout"
         },
         null,
         2
       )
     );
-  } else {
-    console.error(
-      `removed: ${result.removedCount} | spaces normalized: ${result.normalizedSpaces}` + (args.output ? ` | wrote ${args.output}` : "")
-    );
+  } else if (!args.quiet) {
+    const parts = [
+      `removed ${result.removedCount}`,
+      `normalized ${result.normalizedSpaces} space(s)`
+    ];
+    const dest = args.output ? ` \u2192 ${args.output}` : " \u2192 stdout";
+    console.error(`clean: ${parts.join(", ")}${dest}`);
+    if (args.verbose) {
+      if (result.removed.length > 0) {
+        console.error(formatFindings(result.removed));
+      }
+      console.error(scopeNote());
+    }
   }
-  return 0;
+  return EXIT_OK;
+}
+async function main() {
+  let args;
+  try {
+    args = parseArgs(process.argv.slice(2));
+  } catch (err) {
+    console.error(`error: ${err instanceof Error ? err.message : err}`);
+    return EXIT_ERROR;
+  }
+  if (args.command === "help") {
+    console.log(usage());
+    return EXIT_OK;
+  }
+  if (args.command === "version") {
+    console.log(VERSION);
+    return EXIT_OK;
+  }
+  let text;
+  try {
+    text = await readInput(args.file);
+  } catch (err) {
+    console.error(`error: ${err instanceof Error ? err.message : err}`);
+    return EXIT_ERROR;
+  }
+  if (args.command === "detect") return runDetect(text, args);
+  return runClean(text, args);
 }
 main().then(
   (code) => process.exit(code),
   (err) => {
-    console.error(err instanceof Error ? err.message : err);
-    process.exit(1);
+    console.error(`error: ${err instanceof Error ? err.message : err}`);
+    process.exit(EXIT_ERROR);
   }
 );

@@ -22,14 +22,29 @@ Runs straight from GitHub via `npx`. No clone, no `pnpm install`, no npm publish
 
 ```bash
 npx --yes github:zhouzhuojie/rmw detect notes.md
+# detect: clean — no invisible Unicode found
+#   or
+# detect: found 6 invisible character(s) (5 codepoint(s))
+#   U+200B     ×1    zero-width  ZERO WIDTH SPACE
+#   ...
+
 npx --yes github:zhouzhuojie/rmw clean notes.md -o clean.md
+# clean: removed 4, normalized 2 space(s) → clean.md
 
-# stdin / stdout
 cat notes.md | npx --yes github:zhouzhuojie/rmw clean > clean.md
-
-# machine-readable
 npx --yes github:zhouzhuojie/rmw detect notes.md --json
+npx --yes github:zhouzhuojie/rmw detect notes.md --fail   # exit 1 if dirty (CI)
 ```
+
+| Flag | Meaning |
+|------|---------|
+| `--json` | machine-readable output |
+| `--fail` | `detect` exits `1` when marks are found |
+| `-q` / `--quiet` | minimal output |
+| `-v` / `--verbose` | list details + scope note |
+| `-o` / `--output` | `clean` write to file |
+
+**Exit codes:** `0` ok · `1` detect found marks (with `--fail`) · `2` error
 
 `--yes` skips the npx install prompt. Requires Node ≥ 18.
 
@@ -64,6 +79,7 @@ pnpm install
 pnpm rmw detect notes.md
 pnpm rmw clean notes.md -o clean.md
 pnpm rmw clean notes.md --no-space-normalize
+pnpm rmw help
 ```
 
 ---
