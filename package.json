@@ -15,15 +15,23 @@
     "README.md",
     "LICENSE"
   ],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "pnpm --filter @rmw/core test",
-    "build": "pnpm -r run build",
-    "dev": "pnpm --filter @rmw/web dev",
-    "preview": "pnpm --filter @rmw/web preview",
+    "test": "npm run test -w @rmw/core",
+    "build": "npm run build -w @rmw/core && npm run build -w @rmw/cli && npm run build -w @rmw/web",
+    "dev": "npm run dev -w @rmw/web",
+    "preview": "npm run preview -w @rmw/web",
     "rmw": "node packages/cli/dist/cli.js"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@9.15.0"
+  "allowScripts": {
+    "esbuild@0.27.7": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.21.5": true
+  }
 }

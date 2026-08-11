@@ -56,10 +56,10 @@ curl -fsSL https://raw.githubusercontent.com/zhouzhuojie/rmw/main/packages/cli/d
 ### From a clone
 
 ```bash
-pnpm install
-pnpm rmw detect notes.md
-pnpm rmw clean notes.md -o clean.md
-pnpm rmw help
+npm install
+npm run rmw -- detect notes.md
+npm run rmw -- clean notes.md -o clean.md
+npm run rmw -- help
 ```
 
 ---
@@ -70,9 +70,9 @@ pnpm rmw help
 
 ```bash
 git clone https://github.com/zhouzhuojie/rmw.git
-cd rmw && pnpm install
-pnpm dev        # http://localhost:8080
-pnpm preview    # after pnpm build, also :8080
+cd rmw && npm install
+npm run dev        # http://localhost:8080
+npm run preview    # after npm run build, also :8080
 ```
 
 Same engine as the CLI. Built-in examples; nothing leaves the browser.
@@ -121,8 +121,8 @@ packages/
 ```
 
 ```bash
-pnpm test
-pnpm build   # rebuild packages/cli/dist/cli.js — commit dist so npx stays current
+npm test
+npm run build   # rebuild packages/cli/dist/cli.js — commit dist so npx stays current
 ```
 
 ## License

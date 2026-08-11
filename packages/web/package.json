@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@rmw/core": "workspace:*"
+    "@rmw/core": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
