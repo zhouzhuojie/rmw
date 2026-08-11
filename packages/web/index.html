@@ -12,7 +12,7 @@
   </head>
   <body>
     <main class="page">
-      <header>
+      <header class="top">
         <div class="brand">
           <h1>rmw</h1>
           <a
@@ -23,61 +23,54 @@
             >Open source</a
           >
         </div>
-        <p class="tagline">rm watermarks — keep control of AI-generated text</p>
-        <p class="meta">
+        <p class="tagline">Keep control of AI-generated text — strip invisible Unicode</p>
+        <div class="examples" role="group" aria-label="Load example">
+          <button type="button" class="chip" data-example="stego">Stego</button>
+          <button type="button" class="chip" data-example="bidi">Bidi</button>
+          <button type="button" class="chip" data-example="mixed">Mixed</button>
+          <button type="button" class="chip ghost" id="clear-btn">Clear</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Paste</h2>
+            <span id="status" class="status" aria-live="polite"></span>
+          </div>
+          <textarea
+            id="input"
+            rows="8"
+            placeholder="Paste AI-generated text or code…"
+            spellcheck="false"
+          ></textarea>
+
+          <div class="panel-head sub">
+            <h2>Invisible marks</h2>
+            <span class="hint">highlighted inline</span>
+          </div>
+          <div id="viz" class="viz" aria-label="Text with invisible characters revealed"></div>
+          <ul id="legend" class="legend"></ul>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Cleaned</h2>
+            <button type="button" id="copy-btn" class="btn primary" disabled>Copy</button>
+          </div>
+          <pre id="output" class="output" aria-label="Cleaned text"></pre>
+        </section>
+      </div>
+
+      <footer>
+        <p>
           <a href="https://github.com/zhouzhuojie/rmw" target="_blank" rel="noopener noreferrer"
             >github.com/zhouzhuojie/rmw</a
           >
-          · MIT · runs in your browser
+          · MIT · nothing uploaded
         </p>
-      </header>
-
-      <p class="note" role="note">
-        Detect and remove <strong>invisible / format Unicode</strong> (zero-width, bidi, tags,
-        odd spaces…) from text and code you generate with AI. Nothing is uploaded.
-      </p>
-
-      <div class="field-head">
-        <label for="input">Paste text</label>
-        <div class="examples" role="group" aria-label="Load example">
-          <button type="button" class="btn" data-example="stego">Stego</button>
-          <button type="button" class="btn" data-example="bidi">Bidi</button>
-          <button type="button" class="btn" data-example="mixed">Mixed</button>
-        </div>
-      </div>
-      <textarea
-        id="input"
-        rows="11"
-        placeholder="Paste text, or load an example…"
-        spellcheck="false"
-      ></textarea>
-
-      <div class="actions">
-        <button type="button" id="detect-btn" class="btn">Detect</button>
-        <button type="button" id="clean-btn" class="btn primary">Clean</button>
-        <button type="button" id="copy-btn" class="btn" disabled>Copy</button>
-        <button type="button" id="clear-btn" class="btn">Clear</button>
-      </div>
-
-      <section class="report" aria-live="polite">
-        <h2>Report</h2>
-        <p id="summary" class="summary">Load an example, then Detect or Clean.</p>
-        <ul id="findings" class="findings"></ul>
-      </section>
-
-      <label for="output">Cleaned text</label>
-      <textarea id="output" rows="11" readonly spellcheck="false"></textarea>
-
-      <footer>
-        <p>CLI (no install):</p>
-        <pre><code>npx --yes github:zhouzhuojie/rmw detect notes.md
+        <pre class="cli"><code>npx --yes github:zhouzhuojie/rmw detect notes.md
 npx --yes github:zhouzhuojie/rmw clean notes.md -o clean.md</code></pre>
-        <p>
-          <a href="https://github.com/zhouzhuojie/rmw" target="_blank" rel="noopener noreferrer"
-            >Source</a
-          >
-          · Node ≥ 18
-        </p>
       </footer>
     </main>
     <script type="module" src="/src/main.ts"></script>

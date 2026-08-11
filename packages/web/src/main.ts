@@ -1,118 +1,146 @@
-import { clean, detect, type Finding } from "@rmw/core";
+import { annotate, clean, detect, type AnnotatePart } from "@rmw/core";
 
 const input = document.querySelector<HTMLTextAreaElement>("#input")!;
-const output = document.querySelector<HTMLTextAreaElement>("#output")!;
-const summary = document.querySelector<HTMLParagraphElement>("#summary")!;
-const findingsEl = document.querySelector<HTMLUListElement>("#findings")!;
-const detectBtn = document.querySelector<HTMLButtonElement>("#detect-btn")!;
-const cleanBtn = document.querySelector<HTMLButtonElement>("#clean-btn")!;
+const viz = document.querySelector<HTMLDivElement>("#viz")!;
+const legend = document.querySelector<HTMLUListElement>("#legend")!;
+const output = document.querySelector<HTMLPreElement>("#output")!;
+const status = document.querySelector<HTMLSpanElement>("#status")!;
 const copyBtn = document.querySelector<HTMLButtonElement>("#copy-btn")!;
 const clearBtn = document.querySelector<HTMLButtonElement>("#clear-btn")!;
 
 const cp = (n: number) => String.fromCodePoint(n);
 
-/** Demo samples with real invisible characters. */
 const EXAMPLES: Record<string, string> = {
   stego: [
     "Hello" + cp(0x200b) + cp(0x200c) + cp(0x200d) + "world",
     "",
-    "Zero-width stego alphabet between the words (ZWSP, ZWNJ, ZWJ).",
+    "Zero-width marks between the words.",
   ].join("\n"),
 
   bidi: [
-    "Safe filename: photo" + cp(0x202e) + "gpj.exe",
+    "filename: photo" + cp(0x202e) + "gpj.exe",
     "",
-    "RLO (U+202E) reverses display order.",
-    "Also: " + cp(0x200e) + "LRM " + cp(0x200f) + "RLM " + cp(0x2066) + "isolate" + cp(0x2069),
+    "RLO reverses display order.",
+    "Also " + cp(0x200e) + "LRM " + cp(0x200f) + "RLM",
   ].join("\n"),
 
   mixed: [
-    "# Meeting notes",
+    "# Notes",
     "",
-    "Draft" + cp(0x200b) + " says hello.",
+    "Draft" + cp(0x200b) + " hello.",
     "Status:" + cp(0x00a0) + "done",
-    "Soft" + cp(0x00ad) + "hyphen example.",
-    "Wide" + cp(0x3000) + "ideographic space.",
-    "BOM mid-text:" + cp(0xfeff) + "here",
-    "Word" + cp(0x2060) + "joiner + " + cp(0x2063) + "invisible separator.",
+    "Soft" + cp(0x00ad) + "hyphen.",
+    "Wide" + cp(0x3000) + "space.",
+    "BOM:" + cp(0xfeff) + "here",
+    "Word" + cp(0x2060) + "join " + cp(0x2063) + "sep.",
     "",
-    "Normal line with no marks.",
+    "Clean line.",
   ].join("\n"),
 };
 
-function renderFindings(findings: Finding[]): void {
-  findingsEl.replaceChildren();
-  for (const f of findings) {
+function setStatus(text: string, tone: "ok" | "bad" | "muted" = "muted"): void {
+  status.textContent = text;
+  status.classList.remove("ok", "bad");
+  if (tone === "ok") status.classList.add("ok");
+  if (tone === "bad") status.classList.add("bad");
+}
+
+function renderViz(parts: AnnotatePart[]): void {
+  viz.replaceChildren();
+  for (const part of parts) {
+    if (part.type === "text") {
+      viz.append(part.value);
+      continue;
+    }
+    const mark = document.createElement("span");
+    mark.className = "mark";
+    mark.textContent = part.label;
+    mark.title = `${part.codepoint} · ${part.name} · ${part.markKind}`;
+    viz.append(mark);
+  }
+}
+
+function renderLegend(parts: AnnotatePart[]): void {
+  legend.replaceChildren();
+  const counts = new Map<string, { label: string; codepoint: string; name: string; n: number }>();
+  for (const part of parts) {
+    if (part.type !== "mark") continue;
+    const key = part.codepoint;
+    const cur = counts.get(key);
+    if (cur) cur.n += 1;
+    else
+      counts.set(key, {
+        label: part.label,
+        codepoint: part.codepoint,
+        name: part.name,
+        n: 1,
+      });
+  }
+  for (const item of [...counts.values()].sort((a, b) =>
+    a.codepoint.localeCompare(b.codepoint),
+  )) {
     const li = document.createElement("li");
-    li.textContent = `${f.codepoint}  ×${f.count}  ${f.kind}  ${f.name}`;
-    findingsEl.appendChild(li);
+    const code = document.createElement("code");
+    code.textContent = item.label;
+    li.append(code, ` ×${item.n}  ${item.codepoint}  ${item.name}`);
+    legend.append(li);
   }
 }
 
-function setSummary(text: string, tone: "ok" | "bad" | "muted" = "muted"): void {
-  summary.textContent = text;
-  summary.classList.remove("ok", "bad");
-  if (tone === "ok") summary.classList.add("ok");
-  if (tone === "bad") summary.classList.add("bad");
-}
+function refresh(): void {
+  const text = input.value;
+  const parts = annotate(text);
+  const report = detect(text);
+  const result = clean(text);
 
-function runDetect(): void {
-  const result = detect(input.value);
-  renderFindings(result.findings);
-  if (!result.hasSuspiciousChars) {
-    setSummary("detect: clean — no invisible Unicode found", "ok");
-  } else {
-    setSummary(
-      `detect: found ${result.totalSuspicious} invisible character(s) (${result.findings.length} codepoint(s))`,
-      "bad",
-    );
-  }
-}
+  renderViz(parts);
+  renderLegend(parts);
 
-function runClean(): void {
-  const result = clean(input.value);
-  output.value = result.text;
-  renderFindings(result.removed);
+  output.textContent = result.text;
   copyBtn.disabled = result.text.length === 0;
 
-  if (result.removedCount === 0 && result.normalizedSpaces === 0) {
-    setSummary("clean: nothing to remove", "ok");
+  if (!text) {
+    setStatus("");
+    output.textContent = "";
+    copyBtn.disabled = true;
+    return;
+  }
+
+  if (!report.hasSuspiciousChars) {
+    setStatus("clean — no invisible Unicode", "ok");
   } else {
-    setSummary(
-      `clean: removed ${result.removedCount}, normalized ${result.normalizedSpaces} space(s)`,
-      "ok",
+    setStatus(
+      `${report.totalSuspicious} mark(s) · ${report.findings.length} type(s) · removed live`,
+      "bad",
     );
   }
 }
 
 function loadExample(key: string): void {
   const text = EXAMPLES[key];
-  if (!text) return;
+  if (text === undefined) return;
   input.value = text;
-  output.value = "";
-  copyBtn.disabled = true;
-  runDetect();
+  refresh();
+  input.focus();
 }
 
-detectBtn.addEventListener("click", runDetect);
-cleanBtn.addEventListener("click", runClean);
+input.addEventListener("input", refresh);
 
 copyBtn.addEventListener("click", async () => {
-  if (!output.value) return;
+  const text = output.textContent ?? "";
+  if (!text) return;
   try {
-    await navigator.clipboard.writeText(output.value);
-    setSummary("Copied cleaned text", "ok");
+    await navigator.clipboard.writeText(text);
+    setStatus("copied cleaned text", "ok");
   } catch {
-    setSummary("Could not copy — select cleaned text manually", "bad");
+    setStatus("copy failed — select cleaned text", "bad");
   }
 });
 
 clearBtn.addEventListener("click", () => {
   input.value = "";
-  output.value = "";
-  findingsEl.replaceChildren();
-  copyBtn.disabled = true;
-  setSummary("Load an example, then Detect or Clean.");
+  refresh();
+  input.focus();
 });
 
 for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-example]")) {

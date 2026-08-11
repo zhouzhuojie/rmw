@@ -75,7 +75,7 @@ npm run dev        # http://localhost:8080
 npm run preview    # after npm run build, also :8080
 ```
 
-Same engine as the CLI. Built-in examples; nothing leaves the browser.
+Same engine as the CLI. Paste once: **inline chips** show invisible marks, **cleaned text** updates live. Nothing leaves the browser.
 
 ---
 

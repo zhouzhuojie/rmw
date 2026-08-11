@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   SUSPICIOUS_RANGES,
+  annotate,
   clean,
   detect,
   isSuspicious,
@@ -308,6 +309,25 @@ describe("clean", () => {
 });
 
 // --- round-trip matrix -----------------------------------------------------
+
+describe("annotate", () => {
+  it("splits plain text and marks for visualization", () => {
+    const parts = annotate(`Hi${cp(0x200b)}there`);
+    expect(parts).toEqual([
+      { type: "text", value: "Hi" },
+      expect.objectContaining({
+        type: "mark",
+        label: "ZWSP",
+        codepoint: "U+200B",
+      }),
+      { type: "text", value: "there" },
+    ]);
+  });
+
+  it("returns a single text part when clean", () => {
+    expect(annotate("hello")).toEqual([{ type: "text", value: "hello" }]);
+  });
+});
 
 describe("per-codepoint clean matrix", () => {
   const samples: { code: number; label: string }[] = [
