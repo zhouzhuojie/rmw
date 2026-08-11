@@ -10,7 +10,7 @@ const EXIT_FOUND = 1;
 const EXIT_ERROR = 2;
 
 function usage(): string {
-  return `rmw (rm watermarks) — detect and remove invisible Unicode
+  return `rmw (rm watermarks) — keep control of AI-generated text
 
 Usage:
   rmw detect [file] [options]
@@ -39,9 +39,9 @@ Exit codes:
   1  detect found marks (only with --fail)
   2  error
 
-Scope:
-  Invisible / format Unicode only (ZW*, bidi, tags, odd spaces…).
-  Not statistical AI text watermarks.
+What it does:
+  Detect and remove invisible / format Unicode (ZW*, bidi, tags, odd spaces…).
+  Helps you keep AI-generated text and code under your control.
 `;
 }
 
@@ -158,7 +158,7 @@ function formatFindings(findings: Finding[]): string {
 }
 
 function scopeNote(): string {
-  return "note: invisible / format Unicode only — not statistical AI text watermarks";
+  return "note: strips invisible / format Unicode from text you control";
 }
 
 function runDetect(text: string, args: Args): number {

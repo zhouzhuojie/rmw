@@ -202,11 +202,11 @@ describe("clean", () => {
   });
 
   it("detect then clean clears findings", () => {
-    const dirty = `Claude${cp(0x200b)} text${cp(0x00a0)}here`;
+    const dirty = `Draft${cp(0x200b)} text${cp(0x00a0)}here`;
     expect(detect(dirty).hasSuspiciousChars).toBe(true);
     const { text } = clean(dirty);
     expect(detect(text).hasSuspiciousChars).toBe(false);
-    expect(text).toBe("Claude text here");
+    expect(text).toBe("Draft text here");
   });
 
   it("strips an entire stego V2 payload", () => {

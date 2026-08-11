@@ -29,7 +29,7 @@ const EXAMPLES: Record<string, string> = {
   mixed: [
     "# Meeting notes",
     "",
-    "Claude" + cp(0x200b) + " says hello.",
+    "Draft" + cp(0x200b) + " says hello.",
     "Status:" + cp(0x00a0) + "done",
     "Soft" + cp(0x00ad) + "hyphen example.",
     "Wide" + cp(0x3000) + "ideographic space.",

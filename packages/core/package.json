@@ -1,7 +1,7 @@
 {
   "name": "@rmw/core",
   "version": "0.1.0",
-  "description": "rm watermarks — detect and remove invisible Unicode from text",
+  "description": "rm watermarks — keep control of AI-generated text; detect and remove invisible Unicode",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",

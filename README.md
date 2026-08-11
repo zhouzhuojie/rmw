@@ -1,6 +1,6 @@
 # rmw
 
-**rm watermarks** — detect and remove invisible Unicode from text.
+**rm watermarks** — keep control of AI-generated text and code.
 
 [![Open Source](https://img.shields.io/badge/open%20source-MIT-1f4b3a)](https://github.com/zhouzhuojie/rmw)
 [![GitHub](https://img.shields.io/badge/github-zhouzhuojie%2Frmw-181717?logo=github)](https://github.com/zhouzhuojie/rmw)
@@ -8,9 +8,7 @@
 
 Open source: [github.com/zhouzhuojie/rmw](https://github.com/zhouzhuojie/rmw)
 
-Strips zero-width spaces, bidi marks, variation selectors, tag characters, odd spaces, and other invisible/format Unicode — the junk that breaks diffs, linters, and paste. One shared core for CLI and browser. Runs on your machine; nothing is uploaded.
-
-> **Scope:** invisible / format Unicode only. Not a statistical AI text-watermark remover (e.g. Claude’s model-level token bias).
+Keep full control of AI-generated text and code. Strip zero-width spaces, bidi marks, variation selectors, tag characters, odd spaces, and other invisible/format Unicode — the hidden junk that breaks diffs, linters, and paste. One shared core for CLI and browser. Runs on your machine; nothing is uploaded.
 
 ---
 
