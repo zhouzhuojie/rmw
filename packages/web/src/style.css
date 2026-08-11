@@ -91,6 +91,21 @@ h2 {
   font-size: 0.95rem;
 }
 
+.examples-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+}
+
+.examples-label {
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
 .examples {
   display: flex;
   flex-wrap: wrap;
