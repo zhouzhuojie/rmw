@@ -4,83 +4,67 @@
 
 [![Open Source](https://img.shields.io/badge/open%20source-MIT-1f4b3a)](https://github.com/zhouzhuojie/rmw)
 [![GitHub](https://img.shields.io/badge/github-zhouzhuojie%2Frmw-181717?logo=github)](https://github.com/zhouzhuojie/rmw)
-[![Pages](https://img.shields.io/badge/demo-GitHub%20Pages-2f6fed)](https://zhouzhuojie.github.io/rmw/)
+[![Demo](https://img.shields.io/badge/demo-GitHub%20Pages-2f6fed)](https://zhouzhuojie.github.io/rmw/)
 
-**Open source.** Verify the code at [github.com/zhouzhuojie/rmw](https://github.com/zhouzhuojie/rmw).
+Open source: [github.com/zhouzhuojie/rmw](https://github.com/zhouzhuojie/rmw)
 
-Zero-width spaces, bidi overrides, variation selectors, tag characters, odd spaces — the junk that breaks diffs, linters, paste, and quiet tracking. One shared core. Three surfaces: library, CLI, browser.
+Strips zero-width spaces, bidi marks, variation selectors, tag characters, odd spaces, and other invisible/format Unicode — the junk that breaks diffs, linters, and paste. One shared core for CLI and browser. Runs on your machine; nothing is uploaded.
 
-Runs entirely on your machine. Nothing is uploaded.
-
-> **Not** a statistical Claude watermark remover. Anthropic’s model-level token bias is not hidden characters; `rmw` does not claim to strip that. It cleans the Unicode you *can* prove is there.
+> **Scope:** invisible / format Unicode only. Not a statistical AI text-watermark remover (e.g. Claude’s model-level token bias).
 
 ---
 
-## CLI — no install (preferred)
-
-Runs straight from GitHub via `npx`. No clone, no `pnpm install`, no npm publish.
+## CLI (no install)
 
 ```bash
 npx --yes github:zhouzhuojie/rmw detect notes.md
 # detect: clean — no invisible Unicode found
-#   or
 # detect: found 6 invisible character(s) (5 codepoint(s))
-#   U+200B     ×1    zero-width  ZERO WIDTH SPACE
-#   ...
 
 npx --yes github:zhouzhuojie/rmw clean notes.md -o clean.md
 # clean: removed 4, normalized 2 space(s) → clean.md
 
 cat notes.md | npx --yes github:zhouzhuojie/rmw clean > clean.md
 npx --yes github:zhouzhuojie/rmw detect notes.md --json
-npx --yes github:zhouzhuojie/rmw detect notes.md --fail   # exit 1 if dirty (CI)
+npx --yes github:zhouzhuojie/rmw detect notes.md --fail   # exit 1 if dirty
 ```
 
 | Flag | Meaning |
 |------|---------|
+| `-o`, `--output` | `clean`: write to file (default: stdout) |
 | `--json` | machine-readable output |
-| `--fail` | `detect` exits `1` when marks are found |
-| `-q` / `--quiet` | minimal output |
-| `-v` / `--verbose` | list details + scope note |
-| `-o` / `--output` | `clean` write to file |
+| `--fail` | `detect`: exit `1` when marks are found |
+| `-q`, `--quiet` | minimal output |
+| `-v`, `--verbose` | extra detail + scope note |
+| `--no-space-normalize` | `clean`: keep exotic Unicode spaces |
 
-**Exit codes:** `0` ok · `1` detect found marks (with `--fail`) · `2` error
+**Exit codes:** `0` ok · `1` found marks (with `--fail`) · `2` error  
 
-`--yes` skips the npx install prompt. Requires Node ≥ 18.
+Node ≥ 18. `--yes` skips the npx prompt.
 
----
-
-## Web UI
-
-**Live demo:** [https://zhouzhuojie.github.io/rmw/](https://zhouzhuojie.github.io/rmw/)
-
-Local (port **8080**):
-
-```bash
-git clone https://github.com/zhouzhuojie/rmw.git
-cd rmw
-pnpm install
-pnpm dev
-# → http://localhost:8080
-```
-
-Paste → **Detect** or **Clean** → copy. Built-in examples load dirty Unicode so you can try immediately. Same engine as the CLI; fully client-side.
-
-```bash
-pnpm build && pnpm preview   # also http://localhost:8080
-```
-
----
-
-## CLI — from a local clone
+### From a clone
 
 ```bash
 pnpm install
 pnpm rmw detect notes.md
 pnpm rmw clean notes.md -o clean.md
-pnpm rmw clean notes.md --no-space-normalize
 pnpm rmw help
 ```
+
+---
+
+## Web
+
+**Demo:** [https://zhouzhuojie.github.io/rmw/](https://zhouzhuojie.github.io/rmw/)
+
+```bash
+git clone https://github.com/zhouzhuojie/rmw.git
+cd rmw && pnpm install
+pnpm dev        # http://localhost:8080
+pnpm preview    # after pnpm build, also :8080
+```
+
+Same engine as the CLI. Built-in examples; nothing leaves the browser.
 
 ---
 
@@ -89,14 +73,14 @@ pnpm rmw help
 | Kind | Examples |
 |------|----------|
 | **Zero-width** | ZWSP `U+200B`, ZWNJ, ZWJ, word joiner, invisible math ops, soft hyphen, BOM |
-| **Bidi** | LRM/RLM, embeddings, overrides, isolates (Trojan Source class) |
-| **Variation** | VS1–16 (`U+FE00`–`U+FE0F`), Mongolian FVS, ideographic VS |
-| **Tags** | Unicode tag block `U+E0000`–`U+E007F` (stego alphabets) |
+| **Bidi** | LRM/RLM, embeddings, overrides, isolates |
+| **Variation** | VS1–16, Mongolian FVS, ideographic VS |
+| **Tags** | Unicode tags `U+E0000`–`U+E007F` |
 | **Fillers** | Hangul fillers, Braille blank, musical format controls |
 | **Spaces** | NBSP, ideographic, thin/hair/em… → ASCII space (optional) |
-| **Catch-all** | Any remaining Unicode **Format (`Cf`)** character |
+| **Catch-all** | Any remaining Unicode Format (`Cf`) character |
 
-Line separators (`U+0085`, `U+2028`, `U+2029`) become normal newlines.
+Line separators (`U+0085`, `U+2028`, `U+2029`) become newlines.
 
 ---
 
@@ -105,32 +89,30 @@ Line separators (`U+0085`, `U+2028`, `U+2029`) become normal newlines.
 ```ts
 import { detect, clean } from "@rmw/core";
 
-const report = detect(text);
+detect(text);
 // { findings, totalSuspicious, hasSuspiciousChars }
 
-const { text, removed, removedCount, normalizedSpaces } = clean(input);
-clean(input, { normalizeSpaces: false });
+clean(text);
+// { text, removed, removedCount, normalizedSpaces }
+
+clean(text, { normalizeSpaces: false });
 ```
 
 ---
 
-## Repo layout
+## Layout
 
 ```
 packages/
-  core/   detect() + clean()   shared by CLI and web
-  cli/    rmw (bundled to dist for npx)
-  web/    static UI (Vite)
+  core/   detect() + clean()
+  cli/    rmw binary (bundled for npx)
+  web/    static UI
 ```
 
 ```bash
 pnpm test
-pnpm build
+pnpm build   # rebuild packages/cli/dist/cli.js and commit it for npx github:
 ```
-
-The published/git entrypoint is the **self-contained** binary at `packages/cli/dist/cli.js` (zero runtime deps). Rebuild it with `pnpm build` after CLI changes, and commit the dist so `npx github:…` keeps working.
-
----
 
 ## License
 

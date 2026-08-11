@@ -6,85 +6,77 @@
     <title>rmw — rm watermarks</title>
     <meta
       name="description"
-      content="Open-source tool to detect and remove invisible Unicode watermarks from text. Free, runs in your browser. github.com/zhouzhuojie/rmw"
+      content="rm watermarks — detect and remove invisible Unicode from text. Open source. Runs in your browser."
     />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <main class="page">
-      <header class="header">
-        <div class="title-row">
+      <header>
+        <div class="brand">
           <h1>rmw</h1>
           <a
-            class="oss-badge"
+            class="badge"
             href="https://github.com/zhouzhuojie/rmw"
             target="_blank"
             rel="noopener noreferrer"
             >Open source</a
           >
         </div>
-        <p class="tagline">rm watermarks — detect &amp; remove invisible Unicode</p>
-        <p class="repo-line">
-          Free &amp; open source on
+        <p class="tagline">rm watermarks — detect and remove invisible Unicode</p>
+        <p class="meta">
           <a href="https://github.com/zhouzhuojie/rmw" target="_blank" rel="noopener noreferrer"
             >github.com/zhouzhuojie/rmw</a
           >
-          · verify the code, star it, or file an issue.
+          · MIT · runs in your browser
         </p>
       </header>
 
-      <p class="banner" role="note">
-        Strips <strong>invisible / unusual Unicode</strong> (zero-width spaces, bidi marks,
-        odd spaces, tags, etc.). Does <strong>not</strong> remove Anthropic’s statistical
-        Claude watermark (token-level bias). Everything runs in your browser — nothing is
-        uploaded.
+      <p class="note" role="note">
+        Handles <strong>invisible / format Unicode</strong> only (zero-width, bidi, tags, odd
+        spaces…). Not statistical AI text watermarks. Nothing is uploaded.
       </p>
 
-      <div class="label-row">
-        <label class="label" for="input">Paste text</label>
-        <div class="example-btns" role="group" aria-label="Load example">
-          <button type="button" class="btn tiny" data-example="stego">Example: stego</button>
-          <button type="button" class="btn tiny" data-example="bidi">Example: bidi</button>
-          <button type="button" class="btn tiny" data-example="mixed">Example: mixed</button>
+      <div class="field-head">
+        <label for="input">Paste text</label>
+        <div class="examples" role="group" aria-label="Load example">
+          <button type="button" class="btn" data-example="stego">Stego</button>
+          <button type="button" class="btn" data-example="bidi">Bidi</button>
+          <button type="button" class="btn" data-example="mixed">Mixed</button>
         </div>
       </div>
       <textarea
         id="input"
-        rows="12"
-        placeholder="Paste text here, or load an example above…"
+        rows="11"
+        placeholder="Paste text, or load an example…"
         spellcheck="false"
       ></textarea>
 
       <div class="actions">
         <button type="button" id="detect-btn" class="btn">Detect</button>
         <button type="button" id="clean-btn" class="btn primary">Clean</button>
-        <button type="button" id="copy-btn" class="btn" disabled>Copy cleaned</button>
-        <button type="button" id="clear-btn" class="btn ghost">Clear</button>
+        <button type="button" id="copy-btn" class="btn" disabled>Copy</button>
+        <button type="button" id="clear-btn" class="btn">Clear</button>
       </div>
 
-      <section class="result" aria-live="polite">
+      <section class="report" aria-live="polite">
         <h2>Report</h2>
-        <p id="summary" class="summary">Try an example above, then Detect or Clean.</p>
+        <p id="summary" class="summary">Load an example, then Detect or Clean.</p>
         <ul id="findings" class="findings"></ul>
       </section>
 
-      <label class="label" for="output">Cleaned text</label>
-      <textarea id="output" rows="12" readonly spellcheck="false"></textarea>
+      <label for="output">Cleaned text</label>
+      <textarea id="output" rows="11" readonly spellcheck="false"></textarea>
 
-      <footer class="footer">
-        <p>
-          <strong>CLI</strong> (no install — runs from GitHub):
-        </p>
-        <pre class="cli-block"><code>npx --yes github:zhouzhuojie/rmw detect notes.md
-# detect: clean — no invisible Unicode found
-
-npx --yes github:zhouzhuojie/rmw clean notes.md -o clean.md
-# clean: removed 4, normalized 2 space(s) → clean.md</code></pre>
+      <footer>
+        <p>CLI (no install):</p>
+        <pre><code>npx --yes github:zhouzhuojie/rmw detect notes.md
+npx --yes github:zhouzhuojie/rmw clean notes.md -o clean.md</code></pre>
         <p>
           <a href="https://github.com/zhouzhuojie/rmw" target="_blank" rel="noopener noreferrer"
-            >Source on GitHub</a
+            >Source</a
           >
-          · MIT License · Node ≥ 18
+          · Node ≥ 18
         </p>
       </footer>
     </main>

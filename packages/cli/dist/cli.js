@@ -254,45 +254,38 @@ var EXIT_OK = 0;
 var EXIT_FOUND = 1;
 var EXIT_ERROR = 2;
 function usage() {
-  return `rmw (rm watermarks) \u2014 detect & remove invisible Unicode
+  return `rmw (rm watermarks) \u2014 detect and remove invisible Unicode
 
 Usage:
   rmw detect [file] [options]
   rmw clean  [file] [options]
-  rmw help
-  rmw version
+  rmw help | version
 
 Options:
-  -o, --output <file>       clean: write result to file (default: stdout)
-  --json                    machine-readable output
-  --no-space-normalize      clean: keep exotic Unicode spaces
-  --fail                    detect: exit 1 when marks are found (CI)
-  -q, --quiet               less output (status only / none for clean\u2192stdout)
-  -v, --verbose             extra notes (scope of what rmw can detect)
-  -h, --help                show help
-  -V, --version             show version
-
-Input:
-  Pass a file path, or pipe text on stdin.
+  -o, --output <file>    clean: write to file (default: stdout)
+  --json                 machine-readable output
+  --fail                 detect: exit 1 when marks are found
+  --no-space-normalize   clean: keep exotic Unicode spaces
+  -q, --quiet            minimal output
+  -v, --verbose          extra detail + scope note
+  -h, --help             show help
+  -V, --version          show version
 
 Examples:
   npx --yes github:zhouzhuojie/rmw detect notes.md
   npx --yes github:zhouzhuojie/rmw clean notes.md -o clean.md
   cat notes.md | rmw clean > clean.md
-  rmw detect notes.md --fail          # CI: non-zero if dirty
+  rmw detect notes.md --fail
   rmw detect notes.md --json
 
 Exit codes:
-  0  success (detect: clean \xB7 clean: done)
-  1  detect found invisible/format Unicode (--fail or always; see below)
-  2  error (bad args, missing file, \u2026)
-
-By default detect exits 0 even when marks are found (inspection mode).
-Pass --fail to exit 1 when anything is found (gate mode).
+  0  ok (detect clean, or clean done; detect with findings still 0 unless --fail)
+  1  detect found marks (only with --fail)
+  2  error
 
 Scope:
-  rmw only handles invisible / format Unicode (ZW*, bidi, tags, odd spaces\u2026).
-  It does not detect statistical AI text watermarks.
+  Invisible / format Unicode only (ZW*, bidi, tags, odd spaces\u2026).
+  Not statistical AI text watermarks.
 `;
 }
 function parseArgs(argv) {
@@ -384,7 +377,7 @@ function formatFindings(findings) {
   ).join("\n");
 }
 function scopeNote() {
-  return "note: invisible/format Unicode only \u2014 not statistical AI watermarks";
+  return "note: invisible / format Unicode only \u2014 not statistical AI text watermarks";
 }
 function runDetect(text, args) {
   const result = detect(text);

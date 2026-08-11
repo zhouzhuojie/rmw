@@ -1,7 +1,7 @@
 {
   "name": "rmw",
   "version": "0.1.0",
-  "description": "CLI to detect and remove invisible Unicode from text",
+  "description": "rm watermarks — detect and remove invisible Unicode from text",
   "type": "module",
   "bin": {
     "rmw": "./dist/cli.js"

@@ -11,20 +11,19 @@ const clearBtn = document.querySelector<HTMLButtonElement>("#clear-btn")!;
 
 const cp = (n: number) => String.fromCodePoint(n);
 
-/** Demo samples with real invisible characters for one-click testing. */
+/** Demo samples with real invisible characters. */
 const EXAMPLES: Record<string, string> = {
   stego: [
     "Hello" + cp(0x200b) + cp(0x200c) + cp(0x200d) + "world",
     "",
-    "This line hides a classic zero-width stego alphabet between the words.",
-    "ZWSP + ZWNJ + ZWJ are invisible in most editors.",
+    "Zero-width stego alphabet between the words (ZWSP, ZWNJ, ZWJ).",
   ].join("\n"),
 
   bidi: [
     "Safe filename: photo" + cp(0x202e) + "gpj.exe",
     "",
-    "The RLO (U+202E) above reverses display order — a Trojan Source style trick.",
-    "Also marks: " + cp(0x200e) + "LRM " + cp(0x200f) + "RLM " + cp(0x2066) + "isolate" + cp(0x2069),
+    "RLO (U+202E) reverses display order.",
+    "Also: " + cp(0x200e) + "LRM " + cp(0x200f) + "RLM " + cp(0x2066) + "isolate" + cp(0x2069),
   ].join("\n"),
 
   mixed: [
@@ -45,7 +44,7 @@ function renderFindings(findings: Finding[]): void {
   findingsEl.replaceChildren();
   for (const f of findings) {
     const li = document.createElement("li");
-    li.textContent = `${f.codepoint} ×${f.count} — ${f.kind} — ${f.name}`;
+    li.textContent = `${f.codepoint}  ×${f.count}  ${f.kind}  ${f.name}`;
     findingsEl.appendChild(li);
   }
 }
@@ -61,30 +60,28 @@ function runDetect(): void {
   const result = detect(input.value);
   renderFindings(result.findings);
   if (!result.hasSuspiciousChars) {
-    setSummary("No suspicious Unicode characters found.", "ok");
+    setSummary("detect: clean — no invisible Unicode found", "ok");
   } else {
     setSummary(
-      `Found ${result.totalSuspicious} suspicious character(s) across ${result.findings.length} codepoint(s).`,
+      `detect: found ${result.totalSuspicious} invisible character(s) (${result.findings.length} codepoint(s))`,
       "bad",
     );
   }
 }
 
 function runClean(): void {
-  const before = detect(input.value);
   const result = clean(input.value);
   output.value = result.text;
   renderFindings(result.removed);
   copyBtn.disabled = result.text.length === 0;
 
-  const parts = [
-    `Removed ${result.removedCount}`,
-    `normalized ${result.normalizedSpaces} space(s)`,
-  ];
-  if (before.totalSuspicious === 0 && result.normalizedSpaces === 0) {
-    setSummary("Nothing to clean — text already clean.", "ok");
+  if (result.removedCount === 0 && result.normalizedSpaces === 0) {
+    setSummary("clean: nothing to remove", "ok");
   } else {
-    setSummary(`${parts.join(", ")}.`, "ok");
+    setSummary(
+      `clean: removed ${result.removedCount}, normalized ${result.normalizedSpaces} space(s)`,
+      "ok",
+    );
   }
 }
 
@@ -104,9 +101,9 @@ copyBtn.addEventListener("click", async () => {
   if (!output.value) return;
   try {
     await navigator.clipboard.writeText(output.value);
-    setSummary("Cleaned text copied to clipboard.", "ok");
+    setSummary("Copied cleaned text", "ok");
   } catch {
-    setSummary("Could not copy — select the cleaned text manually.", "bad");
+    setSummary("Could not copy — select cleaned text manually", "bad");
   }
 });
 
@@ -115,12 +112,11 @@ clearBtn.addEventListener("click", () => {
   output.value = "";
   findingsEl.replaceChildren();
   copyBtn.disabled = true;
-  setSummary("Try an example above, then Detect or Clean.");
+  setSummary("Load an example, then Detect or Clean.");
 });
 
 for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-example]")) {
   btn.addEventListener("click", () => loadExample(btn.dataset.example!));
 }
 
-// Preload mixed example so first visit is instantly testable.
 loadExample("mixed");
