@@ -1,0 +1,11 @@
+node_modules
+*.tsbuildinfo
+.DS_Store
+coverage
+.vite
+
+# build outputs — except the CLI bundle, which npx runs from git
+packages/core/dist
+packages/web/dist
+notes.md
+clean.md

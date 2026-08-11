@@ -1,0 +1,246 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f5f2;
+  --fg: #1a1a1a;
+  --muted: #5c5c5c;
+  --card: #ffffff;
+  --border: #d9d5cc;
+  --accent: #1f4b3a;
+  --accent-fg: #f4faf7;
+  --warn-bg: #fff6e5;
+  --warn-border: #e6c77a;
+  --ok: #1f4b3a;
+  --bad: #8b2e1f;
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141414;
+    --fg: #eceae4;
+    --muted: #a3a39a;
+    --card: #1e1e1e;
+    --border: #333;
+    --accent: #6fbf9a;
+    --accent-fg: #0e1a14;
+    --warn-bg: #2a2416;
+    --warn-border: #6b5a2a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  letter-spacing: 0.04em;
+}
+
+.oss-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--accent-fg);
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.oss-badge:hover {
+  filter: brightness(1.08);
+}
+
+.tagline {
+  margin: 0.25rem 0 0.35rem;
+  color: var(--muted);
+}
+
+.repo-line {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.repo-line a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.label-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.label-row .label {
+  margin: 0;
+}
+
+.example-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.btn.tiny {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+}
+
+.banner {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-size: 0.92rem;
+  margin-bottom: 1.25rem;
+}
+
+.label {
+  display: block;
+  font-weight: 600;
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.9rem;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 10rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--fg);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.9rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.85rem 0 1.25rem;
+}
+
+.btn {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--fg);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: transparent;
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+.result {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.result h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.summary {
+  margin: 0;
+  color: var(--muted);
+}
+
+.summary.ok {
+  color: var(--ok);
+}
+
+.summary.bad {
+  color: var(--bad);
+  font-weight: 600;
+}
+
+.findings {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+
+.footer {
+  margin-top: 1.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.footer a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.footer p {
+  margin: 0.5rem 0;
+}
+
+.cli-block {
+  margin: 0.4rem 0 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.cli-block code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  white-space: pre;
+}

@@ -1,0 +1,33 @@
+{
+  "name": "rmw",
+  "version": "0.1.0",
+  "description": "rm watermarks — detect and remove invisible Unicode from text",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhouzhuojie/rmw.git"
+  },
+  "bin": {
+    "rmw": "./packages/cli/dist/cli.js"
+  },
+  "files": [
+    "packages/cli/dist/cli.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "pnpm --filter @rmw/core test",
+    "build": "pnpm -r run build",
+    "dev": "pnpm --filter @rmw/web dev",
+    "preview": "pnpm --filter @rmw/web preview",
+    "rmw": "tsx packages/cli/src/cli.ts",
+    "prepack": "pnpm --filter rmw build"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
