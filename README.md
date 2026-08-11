@@ -40,6 +40,19 @@ npx --yes github:zhouzhuojie/rmw detect notes.md --fail   # exit 1 if dirty
 
 Node ≥ 18. `--yes` skips the npx prompt.
 
+### Speed notes
+
+The CLI is a **self-contained ~14KB** file at `packages/cli/dist/cli.js` (checked into git). Root package has **zero runtime dependencies**, so `npx` does not install Vite/Vitest/etc.
+
+- **First** `npx github:…` is slower: clone + cache the repo once.
+- **Later** runs reuse the npx cache and should feel much snappier.
+- For a clone you already have: `node packages/cli/dist/cli.js detect notes.md` (instant).
+- Optional one-liner without npx (always pulls latest `main`):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zhouzhuojie/rmw/main/packages/cli/dist/cli.js | node - detect notes.md
+```
+
 ### From a clone
 
 ```bash
@@ -103,13 +116,13 @@ clean(text, { normalizeSpaces: false });
 ```
 packages/
   core/   detect() + clean()
-  cli/    rmw binary (bundled for npx)
+  cli/    source + bundled dist/cli.js (checked in for fast npx)
   web/    static UI
 ```
 
 ```bash
 pnpm test
-pnpm build   # rebuild packages/cli/dist/cli.js and commit it for npx github:
+pnpm build   # rebuild packages/cli/dist/cli.js — commit dist so npx stays current
 ```
 
 ## License

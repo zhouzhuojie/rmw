@@ -8,7 +8,7 @@
     "url": "git+https://github.com/zhouzhuojie/rmw.git"
   },
   "bin": {
-    "rmw": "./packages/cli/dist/cli.js"
+    "rmw": "packages/cli/dist/cli.js"
   },
   "files": [
     "packages/cli/dist/cli.js",
@@ -20,11 +20,7 @@
     "build": "pnpm -r run build",
     "dev": "pnpm --filter @rmw/web dev",
     "preview": "pnpm --filter @rmw/web preview",
-    "rmw": "tsx packages/cli/src/cli.ts",
-    "prepack": "pnpm --filter rmw build"
-  },
-  "devDependencies": {
-    "tsx": "^4.19.2"
+    "rmw": "node packages/cli/dist/cli.js"
   },
   "engines": {
     "node": ">=18"

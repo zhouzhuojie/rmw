@@ -1,18 +1,12 @@
 {
-  "name": "rmw",
+  "name": "@rmw/cli",
   "version": "0.1.0",
-  "description": "rm watermarks — keep control of AI-generated text; detect and remove invisible Unicode",
+  "private": true,
+  "description": "rm watermarks CLI (bundled into packages/cli/dist for npx)",
   "type": "module",
-  "bin": {
-    "rmw": "./dist/cli.js"
-  },
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsup",
-    "start": "tsx src/cli.ts",
-    "prepublishOnly": "pnpm build"
+    "start": "tsx src/cli.ts"
   },
   "dependencies": {
     "@rmw/core": "workspace:*"
@@ -27,3 +21,4 @@
     "node": ">=18"
   }
 }
+
