@@ -6,9 +6,9 @@
 [![GitHub](https://img.shields.io/badge/github-zhouzhuojie%2Frmw-181717?logo=github)](https://github.com/zhouzhuojie/rmw)
 [![Demo](https://img.shields.io/badge/demo-GitHub%20Pages-2f6fed)](https://zhouzhuojie.github.io/rmw/)
 
-Open source: [github.com/zhouzhuojie/rmw](https://github.com/zhouzhuojie/rmw)
-
 Keep full control of AI-generated text and code. Strip zero-width spaces, bidi marks, variation selectors, tag characters, odd spaces, and other invisible/format Unicode — the hidden junk that breaks diffs, linters, and paste. One shared core for CLI and browser. Runs on your machine; nothing is uploaded.
+
+**Pure OSS Web UI (runs in your own browser):** [https://zhouzhuojie.github.io/rmw/](https://zhouzhuojie.github.io/rmw/)
 
 ---
 
@@ -42,11 +42,6 @@ Node ≥ 18. `--yes` skips the npx prompt.
 
 ### Speed notes
 
-The CLI is a **self-contained ~14KB** file at `packages/cli/dist/cli.js` (checked into git). Root package has **zero runtime dependencies**, so `npx` does not install Vite/Vitest/etc.
-
-- **First** `npx github:…` is slower: clone + cache the repo once.
-- **Later** runs reuse the npx cache and should feel much snappier.
-- For a clone you already have: `node packages/cli/dist/cli.js detect notes.md` (instant).
 - Optional one-liner without npx (always pulls latest `main`):
 
 ```bash
@@ -65,8 +60,6 @@ npm run rmw -- help
 ---
 
 ## Web
-
-**Demo:** [https://zhouzhuojie.github.io/rmw/](https://zhouzhuojie.github.io/rmw/)
 
 ```bash
 git clone https://github.com/zhouzhuojie/rmw.git
