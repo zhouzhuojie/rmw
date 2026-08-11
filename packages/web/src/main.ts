@@ -147,4 +147,4 @@ for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-example]")
   btn.addEventListener("click", () => loadExample(btn.dataset.example!));
 }
 
-loadExample("mixed");
+refresh();
